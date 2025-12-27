@@ -4,8 +4,6 @@ NVIDIA_OC is a simple Rust CLI tool designed to overclock NVIDIA GPUs on Linux. 
 
 ## GTK4 GUI
 
-feat: Introduce GTK4 GUI feature
-
 - Added optional GTK4 GUI available when building and running with the `--features gui` (or launching the program with the `--gui` parameter). The GUI provides controls for GPU overclocking settings including power, GPU frequency offset, memory offset, and min/max clocks.
 - The UI displays power in watts (`W`) to the user, while the underlying CLI and systemd service still use milliwatts (`mW`). The GUI converts UI watt values to milliwatts when constructing commands.
 - `main.rs` was updated to handle launching the GUI when requested via command line arguments or environment variables.

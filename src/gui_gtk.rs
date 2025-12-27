@@ -131,17 +131,21 @@ pub mod imp {
         app.connect_activate(move |app| {
             let window = ApplicationWindow::new(app);
             window.set_title(Some("Nvidia OC"));
-            window.set_default_size(820, 480);
+
+            // Note: removed elevated-action CSS provider — no red border shown.
+            // Let GTK size the window to the content automatically
 
             // Slightly tighter vertical spacing to reduce empty space
             let main = GtkBox::new(Orientation::Vertical, 8);
-            main.set_margin_top(12);
-            main.set_margin_bottom(8);
-            main.set_margin_start(12);
-            main.set_margin_end(12);
+            main.set_margin_top(6);
+            main.set_margin_bottom(6);
+            main.set_margin_start(6);
+            main.set_margin_end(6);
 
             // GPU selector
             let gpu_box = GtkBox::new(Orientation::Horizontal, 6);
+            // make the GPU selector expand to match the width of the grid below
+            gpu_box.set_hexpand(true);
             let gpu_combo = ComboBoxText::new();
             gpu_combo.set_hexpand(true);
             for (id, label) in list_nvidia_gpus() {
@@ -183,9 +187,11 @@ pub mod imp {
             let mem_adj = Adjustment::new(mem_initial as f64, -20000.0, 20000.0, 1.0, 10.0, 0.0);
             let mem_spin = SpinButton::new(Some(&mem_adj), 1.0, 0);
             grid.attach(&freq_label, 0, 1, 1, 1);
-            grid.attach(&freq_spin, 1, 1, 1, 1);
+            // span spin controls across columns 1 and 2 so each row has the
+            // same overall width as the power row (which uses two control columns)
+            grid.attach(&freq_spin, 1, 1, 2, 1);
             grid.attach(&mem_label, 0, 2, 1, 1);
-            grid.attach(&mem_spin, 1, 2, 1, 1);
+            grid.attach(&mem_spin, 1, 2, 2, 1);
 
             let min_label = Label::new(Some("Min clock (MHz)"));
             min_label.set_halign(gtk4::Align::Start);
@@ -198,9 +204,9 @@ pub mod imp {
             let max_adj = Adjustment::new(max_initial as f64, 0.0, 5000.0, 1.0, 10.0, 0.0);
             let max_spin = SpinButton::new(Some(&max_adj), 1.0, 0);
             grid.attach(&min_label, 0, 3, 1, 1);
-            grid.attach(&min_spin, 1, 3, 1, 1);
+            grid.attach(&min_spin, 1, 3, 2, 1);
             grid.attach(&max_label, 0, 4, 1, 1);
-            grid.attach(&max_spin, 1, 4, 1, 1);
+            grid.attach(&max_spin, 1, 4, 2, 1);
 
             main.append(&grid);
 
@@ -225,10 +231,34 @@ pub mod imp {
             // Actions
             let actions = GtkBox::new(Orientation::Horizontal, 8);
             actions.set_halign(gtk4::Align::End);
-            actions.set_margin_bottom(6);
-            let service_btn = Button::with_label(if std::path::Path::new(svc_path).exists() { "Update Service" } else { "Create Service" });
-            let apply = Button::with_label("Apply");
+            // keep the total distance from the bottom edge equal to the top
+            // combo box distance (main margin_top == 6). main has
+            // `set_margin_bottom(6)` so make this child margin 0.
+            actions.set_margin_bottom(0);
+            // Create service button with explicit lock icon label so the icon
+            // is always visible (GTK CSS ::before may not be supported by theme)
+            let service_btn = Button::new();
+            let svc_text = if std::path::Path::new(svc_path).exists() { "Update Service" } else { "Create Service" };
+            let service_icon_lbl = Label::new(Some("🔒"));
+            service_icon_lbl.set_margin_end(6);
+            let service_text_lbl = Label::new(Some(svc_text));
+            let service_box = GtkBox::new(Orientation::Horizontal, 6);
+            service_box.append(&service_icon_lbl);
+            service_box.append(&service_text_lbl);
+            service_btn.set_child(Some(&service_box));
+            // no elevated-action class; keep default classes only
+
+            // Apply button with icon as well
+            let apply = Button::new();
+            let apply_icon_lbl = Label::new(Some("🔒"));
+            apply_icon_lbl.set_margin_end(6);
+            let apply_text_lbl = Label::new(Some("Apply"));
+            let apply_box = GtkBox::new(Orientation::Horizontal, 6);
+            apply_box.append(&apply_icon_lbl);
+            apply_box.append(&apply_text_lbl);
+            apply.set_child(Some(&apply_box));
             apply.set_css_classes(&["suggested-action"]);
+
             actions.append(&service_btn);
             actions.append(&apply);
             main.append(&actions);
@@ -334,8 +364,12 @@ exit 0
                 let result = std::process::Command::new("pkexec").arg(script_path.to_str().unwrap()).arg(tmp.to_str().unwrap()).arg(action).output();
                 match result {
                     Ok(out) => {
-                        if out.status.success() {
+                            if out.status.success() {
                             show_message(Some(&window_for_service), MessageType::Info, ButtonsType::Ok, if !exists { "Service created, enabled and started." } else { "Service updated and restarted." });
+                            // Update the service button text. Calling `set_label`
+                            // is a reliable way to change the visible label even
+                            // when the button contains a custom child on many
+                            // themes.
                             service_btn_clone.set_label("Update Service");
                         } else {
                             let mut msg = String::new();

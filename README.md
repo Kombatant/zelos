@@ -2,7 +2,7 @@
 
 NVIDIA_OC is a simple Rust CLI tool designed to overclock NVIDIA GPUs on Linux. This tool was developed to support both X11 and Wayland environments, addressing a gap in existing overclocking tools that only support X11.
 
-## GTK4 GUI (optional)
+## GTK4 GUI
 
 feat: Introduce GTK4 GUI feature
 
@@ -15,8 +15,9 @@ Example (rendered) screenshot included below:
 
 ![Nvidia OC GUI](docs/ui_screenshot.png)
 
+## Command Line
 
-## Example Usage
+### Example Usage
 
 To set the overclock parameters for your NVIDIA GPU, use the following command:
 
@@ -24,7 +25,7 @@ To set the overclock parameters for your NVIDIA GPU, use the following command:
 ./nvidia_oc set --index 0 --power-limit 200000 --freq-offset 160 --mem-offset 850 --min-clock 0 --max-clock 2000
 ```
 
-## Run on Startup
+### Run on Startup
 
 To ensure NVIDIA_OC runs on startup, follow these steps:
 
@@ -67,12 +68,3 @@ sudo systemctl daemon-reload
 ```bash
 sudo systemctl enable --now nvidia_oc
 ```
-
-## Funding
-
-This application is completely free, and I do not earn any money from your usage of it. If you would like to support my work, donations via PayPal or GitHub Sponsors are greatly appreciated.
-
-- **PayPal:** [Donate via PayPal](https://paypal.me/dreamingcodes)
-- **GitHub Sponsors:** [Sponsor on GitHub](https://github.com/sponsors/Dreaming-Codes)
-
-Thank you for your support!

@@ -14,7 +14,7 @@ struct Cli {
     /// Path to the config file
     #[arg(short, long, default_value = "/etc/nvidia_oc.json")]
     file: String,
-    /// Launch the Qt6 GUI (requires python3 + PyQt6)
+    /// Launch the GTK4 GUI
     #[arg(long, default_value_t = false)]
     gui: bool,
 }

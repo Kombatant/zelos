@@ -1,5 +1,4 @@
 // Clean, redesigned GTK4 GUI
-#![allow(dead_code)]
 
 #[cfg(feature = "gui")]
 pub mod imp {
@@ -134,7 +133,7 @@ pub mod imp {
         let _ = gtk4::init();
         if let Some(settings) = Settings::default() {
             use gtk4::glib::ObjectExt;
-            settings.set_property("gtk-application-prefer-dark-theme", &false);
+            settings.set_property("gtk-application-prefer-dark-theme", false);
         }
 
         // Ensure Adwaita styling is initialized.
@@ -650,12 +649,12 @@ pub mod imp {
 
                     // Track
                     cr.set_source_rgba(0.17, 0.17, 0.17, 1.0);
-                    let _ = cr.arc(cx, cy, r, start, end);
+                    cr.arc(cx, cy, r, start, end);
                     let _ = cr.stroke();
 
                     // Fill (re-use existing accent color)
                     cr.set_source_rgba(0.18, 0.53, 1.0, 1.0);
-                    let _ = cr.arc(cx, cy, r, start, sweep);
+                    cr.arc(cx, cy, r, start, sweep);
                     let _ = cr.stroke();
                 });
             }
@@ -845,10 +844,10 @@ pub mod imp {
                     cr.set_line_width(thickness);
                     cr.set_line_cap(cairo::LineCap::Round);
                     cr.set_source_rgba(0.17, 0.17, 0.17, 1.0);
-                    let _ = cr.arc(cx, cy, r, start, end);
+                    cr.arc(cx, cy, r, start, end);
                     let _ = cr.stroke();
                     cr.set_source_rgba(0.18, 0.53, 1.0, 1.0);
-                    let _ = cr.arc(cx, cy, r, start, sweep);
+                    cr.arc(cx, cy, r, start, sweep);
                     let _ = cr.stroke();
                 });
             }
@@ -935,7 +934,7 @@ pub mod imp {
                     cr.restore().ok();
 
                     let st = history.borrow();
-                    if st.points.len() < 1 {
+                    if st.points.is_empty() {
                         return;
                     }
 
@@ -1090,7 +1089,7 @@ pub mod imp {
                     cr.restore().ok();
 
                     let st = history.borrow();
-                    if st.points.len() < 1 {
+                    if st.points.is_empty() {
                         return;
                     }
 

@@ -13,7 +13,9 @@ Used an LLM to do the following:
 
 Example (rendered) screenshot included below:
 
-![Nvidia OC GUI](docs/ui_screenshot.png)
+![Performance tab](docs/performance.png)
+
+![Metrics tab](docs/metrics.png)
 
 ## Command Line
 

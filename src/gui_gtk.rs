@@ -317,11 +317,16 @@ pub mod imp {
             vram_lb.set_max_value(1.0);
             vram_lb.set_hexpand(true);
             vram_lb.set_css_classes(&["nvidia-progress"]);
-            let vram_text_right = Label::new(None);
-            vram_text_right.set_halign(gtk4::Align::Center);
+            // Centered overlay label shown on top of the level bar
+            let vram_center_lbl = Label::new(None);
+            vram_center_lbl.set_halign(gtk4::Align::Center);
+            vram_center_lbl.set_valign(gtk4::Align::Center);
+            let vram_overlay = gtk4::Overlay::new();
+            vram_overlay.set_child(Some(&vram_lb));
+            vram_overlay.add_overlay(&vram_center_lbl);
+            vram_overlay.set_hexpand(true);
             vram_row.append(&vram_lbl);
-            vram_row.append(&vram_lb);
-            vram_row.append(&vram_text_right);
+            vram_row.append(&vram_overlay);
             let core_clk_lbl = Label::new(Some("GPU Core clock: N/A"));
             core_clk_lbl.set_halign(gtk4::Align::Start);
             let mem_clk_lbl = Label::new(Some("GPU Memory clock: N/A"));
@@ -340,11 +345,15 @@ pub mod imp {
             usage_lb.set_max_value(100.0);
             usage_lb.set_hexpand(true);
             usage_lb.set_css_classes(&["nvidia-progress"]);
-            let usage_text_right = Label::new(None);
-            usage_text_right.set_halign(gtk4::Align::Center);
+            let usage_center_lbl = Label::new(None);
+            usage_center_lbl.set_halign(gtk4::Align::Center);
+            usage_center_lbl.set_valign(gtk4::Align::Center);
+            let usage_overlay = gtk4::Overlay::new();
+            usage_overlay.set_child(Some(&usage_lb));
+            usage_overlay.add_overlay(&usage_center_lbl);
+            usage_overlay.set_hexpand(true);
             usage_row.append(&usage_lbl);
-            usage_row.append(&usage_lb);
-            usage_row.append(&usage_text_right);
+            usage_row.append(&usage_overlay);
 
             // Power Usage progress row
             let power_row = GtkBox::new(Orientation::Horizontal, 6);
@@ -355,11 +364,15 @@ pub mod imp {
             power_lb.set_max_value(1.0);
             power_lb.set_hexpand(true);
             power_lb.set_css_classes(&["nvidia-progress"]);
-            let power_text_right = Label::new(None);
-            power_text_right.set_halign(gtk4::Align::Center);
+            let power_center_lbl = Label::new(None);
+            power_center_lbl.set_halign(gtk4::Align::Center);
+            power_center_lbl.set_valign(gtk4::Align::Center);
+            let power_overlay = gtk4::Overlay::new();
+            power_overlay.set_child(Some(&power_lb));
+            power_overlay.add_overlay(&power_center_lbl);
+            power_overlay.set_hexpand(true);
             power_row.append(&power_lbl);
-            power_row.append(&power_lb);
-            power_row.append(&power_text_right);
+            power_row.append(&power_overlay);
             metrics_box.append(&vram_row);
             metrics_box.append(&core_clk_lbl);
             metrics_box.append(&mem_clk_lbl);
@@ -482,15 +495,15 @@ pub mod imp {
 
             // Poll NVML every second to update metrics labels
             let vram_lb_cl = vram_lb.clone();
-            let vram_text_right_cl = vram_text_right.clone();
+            let vram_text_right_cl = vram_center_lbl.clone();
             let core_clk_lbl_cl = core_clk_lbl.clone();
             let mem_clk_lbl_cl = mem_clk_lbl.clone();
             let temps_lbl_cl = temps_lbl.clone();
             let fans_lbl_cl = fans_lbl.clone();
             let usage_lb_cl = usage_lb.clone();
-            let usage_text_right_cl = usage_text_right.clone();
+            let usage_text_right_cl = usage_center_lbl.clone();
             let power_lb_cl = power_lb.clone();
-            let power_text_right_cl = power_text_right.clone();
+            let power_text_right_cl = power_center_lbl.clone();
             let _gpu_index_poll = gpu_index_num;
             // Move nvml_handle into the timeout closure so it remains alive
             let nvml_handle = nvml_handle;

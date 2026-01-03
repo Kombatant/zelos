@@ -11,7 +11,7 @@ pub mod imp {
     use gtk4::glib;
 
     fn build_command(gpu_index: &str, power: i32, freq: i32, mem: i32, min_clock: i32, max_clock: i32) -> String {
-        let prog = std::env::current_exe().map(|p| p.display().to_string()).unwrap_or_else(|_| "nvidia_oc".to_string());
+        let prog = std::env::current_exe().map(|p| p.display().to_string()).unwrap_or_else(|_| "zelos".to_string());
         format!("{} set --index {} --power-limit {} --freq-offset {} --mem-offset {} --min-clock {} --max-clock {}", prog, gpu_index, power, freq, mem, min_clock, max_clock)
     }
 
@@ -54,7 +54,7 @@ pub mod imp {
     pub fn run(_config_path: &str) {
         // Pre-parse existing systemd service ExecStart (if present) to pre-fill fields
         use std::os::unix::fs::PermissionsExt;
-        let svc_path = "/etc/systemd/system/nvidia_oc.service";
+        let svc_path = "/etc/systemd/system/zelos.service";
         let mut svc_index: Option<String> = None;
         let mut svc_power: Option<i32> = None;
         let mut svc_freq: Option<i32> = None;
@@ -144,11 +144,11 @@ pub mod imp {
         // Explicitly setting Default avoids forcing a scheme.
         adw::StyleManager::default().set_color_scheme(adw::ColorScheme::Default);
 
-        let app = adw::Application::new(Some("org.github.kombatant.nvidia_oc"), Default::default());
+        let app = adw::Application::new(Some("org.github.kombatant.zelos"), Default::default());
 
         app.connect_activate(move |app| {
             let window = adw::ApplicationWindow::new(app);
-            window.set_title(Some("Nvidia OC"));
+            window.set_title(Some("Zelos"));
             // Matches the mock: maximize is disabled.
             window.set_resizable(false);
 
@@ -1534,12 +1534,12 @@ pub mod imp {
                 let gpu_id = active.as_deref().unwrap_or("0");
                 let cmd = build_command(gpu_id, (pa2.value() * 1000.0).round() as i32, fa2.value() as i32, ma2.value() as i32, mia2.value() as i32, mxa2.value() as i32);
 
-                let service_path = "/etc/systemd/system/nvidia_oc.service";
+                let service_path = "/etc/systemd/system/zelos.service";
                 let exists = std::path::Path::new(service_path).exists();
 
                 let content = format!("[Unit]\nDescription=NVIDIA Overclocking Service\nAfter=network.target\n\n[Service]\nExecStart={}\nUser=root\nRestart=on-failure\n\n[Install]\nWantedBy=multi-user.target\n", cmd);
 
-                let tmp = std::env::temp_dir().join("nvidia_oc.service.tmp");
+                let tmp = std::env::temp_dir().join("zelos.service.tmp");
                 if let Err(e) = std::fs::write(&tmp, content) {
                     show_message(Some(&window_for_service), MessageType::Error, ButtonsType::Ok, &format!("Failed to write temp service file: {}", e));
                     return;
@@ -1548,34 +1548,34 @@ pub mod imp {
                 // Create a small helper script that performs the install + systemctl steps.
                 // This script will be executed once via `pkexec`, so the user is prompted for
                 // elevation only a single time. If elevation is denied, nothing is performed.
-                let script_path = std::env::temp_dir().join("nvidia_oc_install.sh");
+                let script_path = std::env::temp_dir().join("zelos_install.sh");
                 let action = if !exists { "create" } else { "update" };
                                 let script = r#"#!/bin/sh
-set -e
-SERVICE_PATH=/etc/systemd/system/nvidia_oc.service
-TMP_SERVICE="$1"
-ACTION="$2"
-if ! install -m 644 "$TMP_SERVICE" "$SERVICE_PATH"; then
-    echo "failed to install service" >&2
-    exit 2
-fi
-if ! systemctl daemon-reload; then
-    echo "failed to daemon-reload" >&2
-    exit 3
-fi
-if [ "$ACTION" = "create" ]; then
-    if ! systemctl enable --now nvidia_oc; then
-        echo "failed to enable/start service" >&2
-        exit 4
-    fi
-else
-    if ! systemctl restart nvidia_oc; then
-        echo "failed to restart service" >&2
-        exit 5
-    fi
-fi
-exit 0
-"#.to_string();
+                set -e
+                SERVICE_PATH=/etc/systemd/system/zelos.service
+                TMP_SERVICE="$1"
+                ACTION="$2"
+                if ! install -m 644 "$TMP_SERVICE" "$SERVICE_PATH"; then
+                    echo "failed to install service" >&2
+                    exit 2
+                fi
+                if ! systemctl daemon-reload; then
+                    echo "failed to daemon-reload" >&2
+                    exit 3
+                fi
+                if [ "$ACTION" = "create" ]; then
+                    if ! systemctl enable --now zelos; then
+                        echo "failed to enable/start service" >&2
+                        exit 4
+                    fi
+                else
+                    if ! systemctl restart zelos; then
+                        echo "failed to restart service" >&2
+                        exit 5
+                    fi
+                fi
+                exit 0
+                "#.to_string();
 
                 if let Err(e) = std::fs::write(&script_path, script) {
                     show_message(Some(&window_for_service), MessageType::Error, ButtonsType::Ok, &format!("Failed to write helper script: {}", e));

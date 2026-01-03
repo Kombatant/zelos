@@ -67,7 +67,7 @@ jobs:
       with:
         tag_name: ${{ env.VERSION }}
         name: ${{ env.VERSION }}
-        files: target/release/nvidia_oc
+        files: target/release/zelos
 
     - name: Publish to crates.io
       if: env.should_release == 'true'

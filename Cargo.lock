@@ -694,21 +694,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nvidia_oc"
-version = "0.4.0"
-dependencies = [
- "clap",
- "clap_complete",
- "gtk4",
- "libadwaita",
- "nvml-wrapper",
- "serde",
- "serde_json",
- "sudo2",
- "which",
-]
-
-[[package]]
 name = "nvml-wrapper"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1321,4 +1306,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.101",
+]
+
+[[package]]
+name = "zelos"
+version = "0.4.0"
+dependencies = [
+ "clap",
+ "clap_complete",
+ "gtk4",
+ "libadwaita",
+ "nvml-wrapper",
+ "serde",
+ "serde_json",
+ "sudo2",
+ "which",
 ]

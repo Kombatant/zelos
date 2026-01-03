@@ -12,7 +12,7 @@ struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
     /// Path to the config file
-    #[arg(short, long, default_value = "/etc/nvidia_oc.json")]
+    #[arg(short, long, default_value = "/etc/zelos.json")]
     file: String,
     /// Launch the GTK4 GUI
     #[arg(long, default_value_t = false)]
@@ -124,7 +124,7 @@ fn main() {
     // `--help`). However, if this process was spawned as the GUI child
     // (`NVIDIA_OC_GUI_RUN` set) we should not print help — the child may
     // intentionally run with no CLI args.
-    if raw_args.len() <= 1 && std::env::var("NVIDIA_OC_GUI_RUN").is_err() {
+    if raw_args.len() <= 1 && std::env::var("ZELOS_GUI_RUN").is_err() {
         let mut cmd = Cli::command();
         let _ = cmd.print_help();
         println!();
@@ -136,11 +136,11 @@ fn main() {
     #[cfg(not(feature = "gui"))]
     let _gui_enabled = false;
     // If child marker env var is present, we are the child process that should start the GUI
-    if std::env::var("NVIDIA_OC_GUI_RUN").is_ok() {
+    if std::env::var("ZELOS_GUI_RUN").is_ok() {
         #[cfg(feature = "gui")]
         {
             // find file arg if present
-            let mut file_arg = "/etc/nvidia_oc.json".to_string();
+            let mut file_arg = "/etc/zelos.json".to_string();
             let mut it = raw_args.iter();
             while let Some(s) = it.next() {
                 if s == "--file" || s == "-f" {
@@ -165,7 +165,7 @@ fn main() {
     if raw_args.iter().any(|a| a == "--gui" || a == "--gui=true") {
         // Build child process: set env marker so child will start GUI without unknown argv
         let mut cmd = std::process::Command::new(std::env::current_exe().expect("cannot get exe path"));
-        cmd.env("NVIDIA_OC_GUI_RUN", "1");
+        cmd.env("ZELOS_GUI_RUN", "1");
         // forward file arg if present
         let mut it = raw_args.iter();
         while let Some(s) = it.next() {
@@ -222,8 +222,8 @@ fn main() {
             }
         }
         None => {
-            let Ok(config_file) = std::fs::read_to_string(cli.file) else {
-                panic!("Configuration file not found and no valid arguments were provided. Run `nvidia_oc --help` for more information.");
+                let Ok(config_file) = std::fs::read_to_string(cli.file) else {
+                panic!("Configuration file not found and no valid arguments were provided. Run `zelos --help` for more information.");
             };
 
             escalate_permissions().expect("Failed to escalate permissions");

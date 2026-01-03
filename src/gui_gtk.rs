@@ -147,6 +147,10 @@ pub mod imp {
 
         app.connect_activate(move |app| {
             let window = adw::ApplicationWindow::new(app);
+            // Explicitly set the window icon name so desktop environments
+            // (KDE, GNOME, etc.) can match the running window to the
+            // installed `.desktop` file and display the correct icon.
+            window.set_icon_name(Some("zelos"));
             window.set_title(Some("Zelos"));
             // Matches the mock: maximize is disabled.
             window.set_resizable(false);

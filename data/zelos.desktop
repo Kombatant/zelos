@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Zelos
+GenericName=GPU Overclocker
+Comment=Simple NVIDIA overclocking utility
+Exec=zelos --gui %U
+Icon=zelos
+Type=Application
+Categories=System;Utility;
+StartupWMClass=zelos
+X-GNOME-UsesNotifications=true
+StartupNotify=true
+Keywords=GPU;NVIDIA;Overclock;Monitoring;
